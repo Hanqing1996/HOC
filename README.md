@@ -183,6 +183,117 @@ const App=AuthWrapper(PageContent)
 reactDom.render(<App background='black' type='home'/> , document.getElementById("root"));
 ```
 ---
-#### 容器组件：状态和业务逻辑；UI组件：只负责根据 props 渲染UI
+#### 容器组件：状态和业务逻辑；UI组件：只负责根据 props 渲染UI（isVisible等props需要给UI组件，也就是说UI组件要知道“如何”渲染）
 * 官方是这么说的
 > 您可能已经注意到 HOC 与容器组件模式之间有相似之处。容器组件担任分离将高层和低层关注的责任，由容器管理订阅和状态，并将 prop 传递给处理渲染 UI。HOC 使用容器作为其实现的一部分，你可以将 HOC 视为参数化容器组件。
+---
+#### [HOC向Hook迁移](https://zhuanlan.zhihu.com/p/56617944)
+* UI组件
+```
+const PureDisplay = ({isLoading, isDelayed, data}) => {
+    if (isDelayed) {
+        return <div>'Please wait a little more...'</div>;
+    }
+
+    if (isLoading) {
+        return <div>'Loading...'</div>;
+    }
+
+    return <div>{data}</div>;
+};
+```
+* HOC
+```
+import React, {Component} from 'react';
+
+// withDelayHint
+export default (loadingPropName, delay) => ComponentIn => {
+    const ComponentOut = class extends Component {
+        state = {
+            timer: null,
+            isDelayed: false
+        };
+
+        tryStartTimer = () => {
+            this.setState({isDelayed: false});
+
+            if (this.props[loadingPropName]) {
+                const timer = setTimeout(() => this.setState({isDelayed: true}), delay);
+                this.setState({timer});
+            }
+        };
+
+        componentDidMount() {
+            this.tryStartTimer();
+        }
+
+        compoenntWillUnmount() {
+            clearTimeout(this.state.timer);
+        }
+
+        componentDidUpdate(prevProps) {
+            if (this.props[loadingPropName] !== prevProps[loadingPropName]) {
+                clearTimeout(this.state.timer);
+                this.tryStartTimer();
+            }
+        }
+
+        render() {
+            const {isDelayed} = this.state;
+
+            return <ComponentIn {...this.props} isDelayed={isDelayed} />;
+        }
+    };
+
+    ComponentOut.displayName = `withDelayHint(${ComponentIn.displayName || ComponentIn.name})`;
+
+    return ComponentOut;
+};
+```
+```
+const DisplayWithDelay = withDelayHint('isLoading', 2000)(PureDisplay);
+
+// 使用
+<DisplayWithDelay isLoading={true} />
+```
+* 按照HOC的思路改造成hooks
+```
+import {useRef, useState, useEffect} from 'react';
+
+
+// custom hook:useDelayHint,用于根据loading获得delayed值
+export default (loading, delay) => {
+    // 和render无关的属性可以用useRef来保存
+    const timer = useRef(null);
+    // setState转到useState
+    const [delayed, setDelayed] = useState(false);
+    // 生命周期核心部分用useEffect
+    useEffect(
+        () => {
+            if (loading) {
+                timer.current = setTimeout(() => setDelayed(true), delay);
+            }
+
+            // 清理的逻辑在这里返回
+            return () => clearTimeout(timer.current);
+        },
+        // componentDidUpdate里的if对应的属性在这里传
+        [loading]
+    );
+
+    return delayed;
+};
+```
+···
+const HookDisplay = props => {
+    // 这里直接给isLoading，而不是loadingPropName
+    const isDelayed = useDelayHint(props.isLoading, 2000);
+
+    return <PureDisplay {...props} isDelayed={isDelayed} />;
+};
+
+// 使用
+<HookDisplay isLoading={true} />
+···
+---
+
