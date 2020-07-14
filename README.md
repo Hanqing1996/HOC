@@ -284,7 +284,7 @@ export default (loading, delay) => {
     return delayed;
 };
 ```
-···
+```
 const HookDisplay = props => {
     // 这里直接给isLoading，而不是loadingPropName
     const isDelayed = useDelayHint(props.isLoading, 2000);
@@ -294,6 +294,6 @@ const HookDisplay = props => {
 
 // 使用
 <HookDisplay isLoading={true} />
-···
+```
 ---
 
