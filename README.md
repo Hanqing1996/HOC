@@ -297,7 +297,7 @@ const HookDisplay = props => {
 ```
 * 改造总结
 1. 依然需要一个容器组件，HOC模式下是DisplayWithDelay，Hook模式下是HookDisplay
-2. custom hook 封装了-<strong>父容器组件的props（用于业务逻辑，状态管理，在本例中为 loading）到子组件props（用于UI渲染，在本例中为 isDelayed）的一系列逻辑<strong>
+2. custom hook 封装了-<strong>父容器组件的props（用于业务逻辑，状态管理，在本例中为 loading）到子组件props（用于UI渲染，在本例中为 isDelayed）的一系列逻辑</strong>
 3. custom hook 不返回组件，只返回一个值，该值返回给子组件用于UI渲染
 4. 改造前后，子组件（purDisplay）不变
 ---
