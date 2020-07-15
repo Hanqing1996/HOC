@@ -301,4 +301,13 @@ const HookDisplay = props => {
 3. custom hook 不返回组件，只返回一个值，该值返回给子组件用于UI渲染
 4. 改造前后，子组件（purDisplay）不变
 ---
+---
+#### mixin,HOC,hook
+* react
+> mixin（harmful）->HOC（不够好）->hook（现在最流行）
+* vue
+> mixin（足够自由，够用了）
+
+
+
 
