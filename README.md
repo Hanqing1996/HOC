@@ -303,11 +303,12 @@ const HookDisplay = props => {
 ---
 ---
 #### mixin,HOC,hook
+[“为何在React中推荐使用HOC，而不是mixins来实现组件复用。但在Vue中，很少有HOC的尝试？”相关讨论](https://www.zhihu.com/question/67588479/answer/259337005)
 * react
 > mixin（harmful）->HOC（不够好）->hook（现在最流行）
 * vue
 > mixin（足够自由，够用了）
-
+---
 
 
 
